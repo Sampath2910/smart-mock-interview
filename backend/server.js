@@ -22,10 +22,10 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/interviews", interviewRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to AI Interview Platform API" });
-});
+// ❗ REMOVE / COMMENT THIS because it blocks React build
+// app.get("/", (req, res) => {
+//   res.json({ message: "Welcome to AI Interview Platform API" });
+// });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -43,10 +43,21 @@ mongoose
   )
   .then(() => {
     console.log("Connected to MongoDB");
-    // Start server
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+
+    const path = require("path");
+
+    // 🔥 Serve React frontend build
+    app.use(express.static(path.join(__dirname, "../frontend/build")));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
     });
+
+    // Start backend server
+      app.listen(PORT, () => {
+    console.log(`\n🚀 Server running at: http://localhost:${PORT}\n`);
+    console.log("📌 Click the link above to open the website");
+    });
+
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
@@ -56,6 +67,5 @@ mongoose
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled Promise Rejection:", err);
-  // Close server & exit process
   process.exit(1);
 });

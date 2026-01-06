@@ -3,112 +3,75 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
     try {
-      // Replace with your actual API endpoint
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Login failed. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    } catch {
+      setError("Invalid email or password");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-primary mb-6">
-          AI Interview Platform
-        </h1>
-        <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200">
+      <div className="glass-auth w-[420px] p-10">
+        <h2 className="text-3xl font-semibold text-center text-gray-900 mb-6">
+          Welcome Back 👋
+        </h2>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="bg-red-100 text-red-600 p-2 rounded mb-4 text-center text-sm">
             {error}
-          </div>
+          </p>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Email
-            </label>
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <div>
+            <label className="auth-label">Email</label>
             <input
               type="email"
-              id="email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Email"
+              className="auth-input"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Password
-            </label>
+          <div>
+            <label className="auth-label">Password</label>
             <input
               type="password"
-              id="password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Password"
+              className="auth-input"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <div className="flex items-center justify-between mb-4">
-            <button
-              type="submit"
-              className="w-full bg-primary hover:bg-blue-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              disabled={loading}
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p>
-              Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="text-secondary hover:text-primary"
-              >
-                Register here
-              </Link>
-            </p>
-          </div>
+          <button className="btn-primary w-full mt-4 hover:shadow-xl transition-all">
+            Login
+          </button>
         </form>
+
+        <p className="text-center text-gray-600 text-sm mt-5">
+          Don't have an account?{" "}
+          <Link className="text-blue-600 hover:underline" to="/register">
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );

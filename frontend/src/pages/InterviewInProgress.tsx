@@ -1893,42 +1893,70 @@ const InterviewInProgress: React.FunctionComponent = () => {
     return () => clearInterval(monitoringInterval);
   }, [cameraActive, cameraInitialized, confidenceScore]);
 
-  return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-5xl mx-auto">
-        {/* Header with timer and controls */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+   return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-200 flex items-center justify-center px-4 py-6">
+      <div className="w-full max-w-6xl space-y-6">
+        {/* Top header with timer + controls */}
+        <div className="glass-card flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.15em] text-blue-800/70 font-semibold">
+              Live AI Mock Interview
+            </p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mt-1">
+              {interviewSettings?.position || "Technical Interview"}
+            </h1>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">
+              Level:{" "}
+              <span className="capitalize">
+                {interviewSettings?.experience || "mid"}
+              </span>
+              {" · "}
+              {questions.length > 0 ? `${questions.length} questions` : "Loading questions..."}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* Timer pill */}
             <div
-              className={`text-xl font-mono ${
-                remainingTime < 300 ? "text-red-600" : ""
+              className={`px-4 py-2 rounded-full font-mono text-sm flex items-center gap-2 shadow-sm ${
+                remainingTime < 300
+                  ? "bg-red-50 text-red-700 border border-red-200"
+                  : "bg-blue-50 text-blue-700 border border-blue-200"
               }`}
             >
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${
+                  remainingTime < 300 ? "bg-red-500" : "bg-emerald-500"
+                } animate-pulse`}
+              />
               {formatTime(remainingTime)}
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={toggleRecording}
-                className={`p-2 rounded-full ${
-                  isRecording ? "bg-red-500" : "bg-gray-300"
+
+            {/* Recording toggle */}
+            <button
+              onClick={toggleRecording}
+              type="button"
+              className={`px-3 py-2 rounded-full text-xs md:text-sm flex items-center gap-2 border transition-all ${
+                isRecording
+                  ? "bg-red-500 text-white border-red-500 shadow-md"
+                  : "bg-white/80 text-gray-700 border-gray-200 hover:bg-gray-50"
+              }`}
+              title={isRecording ? "Stop recording" : "Start recording"}
+            >
+              <span
+                className={`w-2.5 h-2.5 rounded-full ${
+                  isRecording ? "bg-white" : "bg-red-500"
                 }`}
-                title={isRecording ? "Stop recording" : "Start recording"}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    isRecording ? "bg-white" : "bg-red-500"
-                  }`}
-                ></div>
-              </button>
-              <span className="text-sm">
+              />
+              <span className="font-medium">
                 {isRecording ? "Recording" : "Paused"}
               </span>
-            </div>
-          </div>
-          <div>
+            </button>
+
+            {/* End interview */}
             <button
               onClick={endInterview}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+              className="px-4 py-2 rounded-lg bg-gray-900 text-white text-xs md:text-sm font-medium hover:bg-black/80 transition disabled:opacity-60"
               disabled={loading}
             >
               {loading ? "Saving..." : "End Interview"}
@@ -1937,27 +1965,35 @@ const InterviewInProgress: React.FunctionComponent = () => {
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left column: Webcam and metrics */}
+          {/* Left column: Webcam + metrics */}
           <div className="lg:col-span-1">
-            <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+            <div className="glass-card mb-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Live Feedback</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Live Feedback
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Camera + AI-based confidence and communication
+                  </p>
+                </div>
                 <button
                   onClick={toggleCamera}
-                  className="text-sm px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  type="button"
+                  className="text-[11px] px-3 py-1 rounded-full bg-white/70 border border-gray-200 text-gray-700 hover:bg-gray-50 transition"
                 >
                   {cameraActive ? "Disable Camera" : "Enable Camera"}
                 </button>
               </div>
 
               {cameraActive && (
-                <div className="webcam-section">
+                <div className="webcam-section w-full flex flex-col items-center">
                   <Webcam
                     ref={webcamRef}
                     audio={false}
@@ -1971,17 +2007,25 @@ const InterviewInProgress: React.FunctionComponent = () => {
                     }}
                     onUserMedia={handleVideoInitialization}
                     onUserMediaError={handleWebcamError}
+                    className="rounded-lg shadow-md border border-gray-200"
                   />
 
                   {cameraError && (
-                    <div className="camera-error">{cameraError}</div>
+                    <div className="camera-error mt-2 text-xs">
+                      {cameraError}
+                    </div>
                   )}
 
-                  <canvas ref={canvasRef} width={320} height={240} />
+                  <canvas
+                    ref={canvasRef}
+                    width={320}
+                    height={240}
+                    className="hidden"
+                  />
 
-                  <div className="metrics">
+                  <div className="metrics mt-4 space-y-3">
                     {confidenceScore === 0 && (
-                      <div className="no-face-detected">
+                      <div className="no-face-detected text-xs">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -1997,13 +2041,14 @@ const InterviewInProgress: React.FunctionComponent = () => {
                           <line x1="15" y1="9" x2="9" y2="15"></line>
                           <line x1="9" y1="9" x2="15" y2="15"></line>
                         </svg>
-                        No face detected - please position yourself in front of
-                        the camera
+                        No face detected — please look at the camera
                       </div>
                     )}
 
                     <div className="metric">
-                      <label>Confidence:</label>
+                      <label className="text-xs text-gray-600">
+                        Confidence
+                      </label>
                       <div
                         className={`progress-bar ${
                           confidenceScore === 0 ? "no-face" : ""
@@ -2014,166 +2059,170 @@ const InterviewInProgress: React.FunctionComponent = () => {
                           style={{ width: `${confidenceScore}%` }}
                         ></div>
                       </div>
-                      <span>{confidenceScore}%</span>
+                      <span className="text-xs text-gray-700">
+                        {confidenceScore}%
+                      </span>
                     </div>
 
                     <div
                       className={`expression ${
                         confidenceScore === 0 ? "no-face" : ""
-                      }`}
+                      } text-xs text-gray-600`}
                     >
                       Expression:{" "}
-                      {confidenceScore === 0
-                        ? "Unknown - no face detected"
-                        : facialExpression}
+                      <span className="font-medium capitalize">
+                        {confidenceScore === 0
+                          ? "Unknown (no face detected)"
+                          : facialExpression}
+                      </span>{" "}
+                      <span className="ml-1 text-lg">
+                        {getExpressionEmoji(facialExpression)}
+                      </span>
                     </div>
                   </div>
                 </div>
               )}
 
               {!cameraActive && (
-                <div className="border border-gray-300 rounded bg-gray-100 p-4 mb-4 text-center">
-                  <p className="text-gray-600 mb-2">Camera is disabled</p>
+                <div className="border border-dashed border-gray-300 rounded-lg bg-gray-50 p-4 mb-4 text-center">
+                  <p className="text-gray-600 text-sm mb-2">
+                    Camera is currently disabled.
+                  </p>
                   <button
                     onClick={toggleCamera}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    type="button"
+                    className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-full hover:bg-blue-700 transition"
                   >
                     Enable Camera
                   </button>
                 </div>
               )}
 
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">Expression:</span>
-                  <span className="flex items-center">
-                    <span className="capitalize mr-2">{facialExpression}</span>
-                    <span className="text-2xl">
-                      {getExpressionEmoji(facialExpression)}
+              {/* Scores */}
+              <div className="mt-4 space-y-4">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-700">
+                      Confidence Score
                     </span>
-                  </span>
+                    <span className="text-xs">{confidenceScore}%</span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mb-1">
+                    Based on your facial expressions and body language
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className={`${getScoreColor(
+                        confidenceScore
+                      )} h-2.5 rounded-full transition-all duration-300`}
+                      style={{ width: `${confidenceScore}%` }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Confidence Score:</span>
-                  <span>{confidenceScore}%</span>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-700">
+                      Answer Relevance
+                    </span>
+                    <span className="text-xs">{relevanceScore}%</span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mb-1">
+                    How well your answer covers the key technical points
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className={`${getScoreColor(
+                        relevanceScore
+                      )} h-2.5 rounded-full transition-all duration-300`}
+                      style={{ width: `${relevanceScore}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mb-1">
-                  Based on your facial expressions and body language
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className={`${getScoreColor(
-                      confidenceScore
-                    )} h-2.5 rounded-full transition-all duration-300`}
-                    style={{ width: `${confidenceScore}%` }}
-                  ></div>
-                </div>
-              </div>
 
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Answer Relevance:</span>
-                  <span>{relevanceScore}%</span>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-medium text-gray-700">
+                      Communication
+                    </span>
+                    <span className="text-xs">{communicationScore}%</span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mb-1">
+                    Grammar, structure, and clarity of your response
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className={`${getScoreColor(
+                        communicationScore
+                      )} h-2.5 rounded-full transition-all duration-300`}
+                      style={{ width: `${communicationScore}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mb-1">
-                  How well your answer addresses the question's key points
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className={`${getScoreColor(
-                      relevanceScore
-                    )} h-2.5 rounded-full transition-all duration-300`}
-                    style={{ width: `${relevanceScore}%` }}
-                  ></div>
-                </div>
-              </div>
 
-              <div className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium">Communication:</span>
-                  <span>{communicationScore}%</span>
+                <div className="mt-3 text-[11px] text-gray-500 space-y-1">
+                  <p>• Speak clearly and maintain eye contact for better scores.</p>
+                  <p>• Use technical terms and examples to boost relevance.</p>
+                  <p>
+                    • Average scores will be calculated and shown at the end of the
+                    interview.
+                  </p>
                 </div>
-                <div className="text-xs text-gray-500 mb-1">
-                  Grammar, structure, and clarity of your response
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className={`${getScoreColor(
-                      communicationScore
-                    )} h-2.5 rounded-full transition-all duration-300`}
-                    style={{ width: `${communicationScore}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="mt-4 text-xs text-gray-500">
-                <p>
-                  Speak clearly and maintain eye contact for better confidence
-                  scores.
-                </p>
-                <p>
-                  Use proper grammar and technical terms to improve
-                  communication scores.
-                </p>
-                <p>
-                  Include relevant keywords to improve your answer relevance
-                  score.
-                </p>
-                <p className="mt-2 italic">
-                  Average scores will be calculated and shown at the end of the
-                  interview.
-                </p>
               </div>
             </div>
           </div>
 
-          {/* Right column: Question and answer */}
-          <div className="lg:col-span-2">
-            {/* Question card */}
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">
-                  Question {currentQuestion + 1} of {questions.length}
-                </h2>
+          {/* Right column: Question + Answer */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="glass-card mb-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    Question {currentQuestion + 1} of {questions.length || "…"}
+                  </h2>
+                  {!questionsLoading && questions.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Answer in a structured way: intro → key points → conclusion
+                    </p>
+                  )}
+                </div>
                 <button
                   onClick={handleThinkingTime}
                   disabled={isThinking}
-                  className={`px-3 py-1 rounded text-sm ${
+                  type="button"
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                     isThinking
-                      ? "bg-green-100 text-green-800"
-                      : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      ? "bg-green-50 text-green-800 border-green-200 cursor-default"
+                      : "bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
                   }`}
                 >
-                  {isThinking ? "Thinking..." : "I need time to think"}
+                  {isThinking ? "Thinking..." : "I need a moment to think"}
                 </button>
               </div>
 
               {questionsLoading ? (
                 <div className="py-8 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                  <p className="mt-2 text-gray-600">
-                    Loading questions based on your selected skills...
+                  <p className="mt-3 text-gray-600 text-sm">
+                    Generating questions based on your selected skills...
                   </p>
                 </div>
               ) : questions.length > 0 ? (
                 <>
-                  <p className="text-lg mb-6">
+                  <p className="text-base sm:text-lg mb-6 text-gray-800 leading-relaxed">
                     {questions[currentQuestion]?.question}
                   </p>
 
                   <div className="mb-4">
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">
-                      Expected topics to cover:
+                    <h3 className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+                      Expected topics to cover
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {questions[currentQuestion]?.expectedTopics.map(
                         (topic, index) => (
                           <span
                             key={index}
-                            className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs"
+                            className="bg-gray-100 text-gray-800 px-2.5 py-1 rounded-full text-[11px]"
                           >
                             {topic}
                           </span>
@@ -2183,24 +2232,27 @@ const InterviewInProgress: React.FunctionComponent = () => {
                   </div>
                 </>
               ) : (
-                <p className="text-red-600">
-                  Failed to load questions. Please try refreshing the page.
+                <p className="text-red-600 text-sm">
+                  Failed to load questions. Please refresh and try again.
                 </p>
               )}
 
-              <div className="mt-8">
+              {/* Answer area */}
+              <div className="mt-6">
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    Your answer:
+                    Your answer
                   </label>
                   {isListening ? (
-                    <span className="text-xs text-green-600 animate-pulse">
+                    <span className="text-[11px] text-green-600 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                       Voice recognition active
                     </span>
                   ) : (
                     <button
+                      type="button"
                       onClick={startListening}
-                      className="text-xs text-blue-600 hover:text-blue-800"
+                      className="text-[11px] text-blue-600 hover:text-blue-800 underline"
                     >
                       Start voice input
                     </button>
@@ -2210,29 +2262,31 @@ const InterviewInProgress: React.FunctionComponent = () => {
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Type your answer here or use voice input..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-white/80"
+                  placeholder="Speak or type your answer here. Try to structure your response with clear points..."
                 />
               </div>
             </div>
 
-            {/* Navigation buttons */}
-            <div className="flex justify-between">
+            {/* Bottom navigation */}
+            <div className="flex flex-col sm:flex-row justify-between gap-3">
               <button
                 onClick={() => navigate("/dashboard")}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+                type="button"
+                className="px-4 py-2.5 rounded-lg bg-white/80 text-gray-800 border border-gray-200 hover:bg-gray-50 text-sm font-medium flex items-center justify-center gap-1 transition disabled:opacity-60"
                 disabled={loading}
               >
-                Abandon Interview
+                ← Abandon Interview
               </button>
               <button
                 onClick={nextQuestion}
-                className="bg-primary text-white px-6 py-2 rounded hover:bg-blue-700"
+                type="button"
+                className="px-6 py-2.5 rounded-lg bg-primary text-white hover:bg-blue-700 text-sm font-semibold shadow-md flex items-center justify-center gap-1 transition disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={loading || questionsLoading}
               >
                 {currentQuestion < questions.length - 1
-                  ? "Next Question"
-                  : "Finish Interview"}
+                  ? "Next Question →"
+                  : "Finish Interview →"}
               </button>
             </div>
           </div>

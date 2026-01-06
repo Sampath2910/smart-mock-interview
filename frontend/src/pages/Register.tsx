@@ -15,7 +15,6 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -24,135 +23,94 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      // Replace with your actual API endpoint
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
-        {
-          name,
-          email,
-          password,
-        }
+        { name, email, password }
       );
 
-      // Automatically log user in
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       navigate("/dashboard");
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Registration failed. Please try again."
-      );
+      setError(err.response?.data?.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-primary mb-6">
-          AI Interview Platform
-        </h1>
-        <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200">
+      <div className="glass-auth w-[420px] p-10">
+        <h2 className="text-3xl font-semibold text-center text-gray-900 mb-6">
+          Create Account 🚀
+        </h2>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p className="bg-red-100 text-red-600 p-2 rounded mb-4 text-center text-sm">
             {error}
-          </div>
+          </p>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Full Name
-            </label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div>
+            <label className="auth-label">Full Name</label>
             <input
               type="text"
-              id="name"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Full Name"
+              className="auth-input"
+              placeholder="Enter full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Email
-            </label>
+          <div>
+            <label className="auth-label">Email</label>
             <input
               type="email"
-              id="email"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Email"
+              className="auth-input"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Password
-            </label>
+          <div>
+            <label className="auth-label">Password</label>
             <input
               type="password"
-              id="password"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Password"
+              className="auth-input"
+              placeholder="Create password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="confirmPassword"
-              className="block text-gray-700 text-sm font-bold mb-2"
-            >
-              Confirm Password
-            </label>
+          <div>
+            <label className="auth-label">Confirm Password</label>
             <input
               type="password"
-              id="confirmPassword"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Confirm Password"
+              className="auth-input"
+              placeholder="Re-enter password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
 
-          <div className="flex items-center justify-between mb-4">
-            <button
-              type="submit"
-              className="w-full bg-primary hover:bg-blue-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              disabled={loading}
-            >
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p>
-              Already have an account?{" "}
-              <Link to="/" className="text-secondary hover:text-primary">
-                Login here
-              </Link>
-            </p>
-          </div>
+          <button className="btn-primary w-full mt-3" disabled={loading}>
+            {loading ? "Creating account..." : "Register"}
+          </button>
         </form>
+
+        <p className="text-center text-gray-600 text-sm mt-5">
+          Already have an account?{" "}
+          <Link className="text-blue-600 hover:underline" to="/">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

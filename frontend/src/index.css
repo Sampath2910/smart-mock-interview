@@ -15,3 +15,99 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+/* Glass UI */
+.glass-effect {
+  background: rgba(30, 64, 175, 0.45);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 18px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-table {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  background: #1e40af;
+  padding: 10px 24px;
+  border-radius: 10px;
+  color: white;
+}
+
+.nav-link {
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateX(4px);
+}
+
+.table-head {
+  padding-bottom: 14px;
+  text-align: left;
+}
+.table-cell {
+  padding: 12px 10px;
+}
+
+/* Authentication Card Glass UI */
+.glass-auth {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 10px 40px rgba(30, 64, 175, 0.18);
+}
+
+/* Inputs */
+.auth-input {
+  width: 100%;
+  padding: 10px 6px;
+  border: none;
+  border-bottom: 2px solid rgba(30, 64, 175, 0.35);
+  background: transparent;
+  outline: none;
+  transition: 0.25s;
+}
+.auth-input:focus {
+  border-bottom: 2px solid #1e40af;
+}
+
+/* Labels */
+.auth-label {
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Blue button (sharp rectangle) */
+.btn-primary {
+  background: #1e40af;
+  color: white;
+  padding: 12px;
+  font-weight: 600;
+  text-align: center;
+  transition: 0.25s;
+}
+.btn-primary:hover {
+  background: #3b82f6;
+  transform: translateY(-2px);
+}

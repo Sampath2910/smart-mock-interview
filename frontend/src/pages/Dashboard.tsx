@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  LayoutDashboard,
+  LogOut,
+  PlayCircle,
+  LineChart,
+  UserCircle,
+} from "lucide-react";
 
 interface Interview {
   _id: string;
@@ -8,13 +15,6 @@ interface Interview {
   type: string;
   date: string;
   score: number;
-  performance: {
-    confidence: number;
-    technicalCorrectness: number;
-    communicationSkills: number;
-    relevance: number;
-    fluency: number;
-  };
 }
 
 interface UserData {
@@ -27,231 +27,165 @@ const Dashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState<Interview[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(
-    location.state?.message || null
-  );
+  const successMessage = location.state?.message ?? null;
 
   useEffect(() => {
-    // Load user data from localStorage
-    const userString = localStorage.getItem("user");
-    if (userString) {
-      try {
-        const user = JSON.parse(userString);
-        setUserData(user);
-      } catch (err) {
-        console.error("Failed to parse user data:", err);
-      }
-    }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUserData(JSON.parse(storedUser));
   }, []);
 
   useEffect(() => {
-    // Clear success message after 5 seconds
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
-
-  useEffect(() => {
     const fetchInterviews = async () => {
-      try {
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-        if (!token) {
-          throw new Error("Authentication required");
-        }
-
-        const response = await axios.get(
-          "http://localhost:5000/api/interviews",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setInterviews(response.data);
-      } catch (err: any) {
-        console.error("Failed to fetch interviews:", err);
-        setError(
-          err.response?.data?.message || "Failed to load interview data"
-        );
-      } finally {
-        setLoading(false);
-      }
+      const response = await axios.get("http://localhost:5000/api/interviews", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setInterviews(response.data);
     };
-
     fetchInterviews();
   }, []);
 
   const handleLogout = () => {
-    // Clear auth data from localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // Redirect to login page
+    localStorage.clear();
     navigate("/");
   };
 
-  // Calculate average score from all interviews
-  const averageScore =
-    interviews.length > 0
-      ? Math.round(
-          interviews.reduce((sum, interview) => sum + interview.score, 0) /
-            interviews.length
-        )
-      : 0;
-
-  // Find highest score
-  const highestScore =
-    interviews.length > 0
-      ? Math.max(...interviews.map((interview) => interview.score))
-      : 0;
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-background p-8">
-      {/* Top header with user info and logout */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg mr-3">
-            {userData?.name?.charAt(0).toUpperCase() || "U"}
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 flex">
+      {/* Sidebar */}
+      <aside className="w-64 glass-effect text-white p-6 flex flex-col gap-6">
+        <div className="flex items-center gap-3 text-white/90 font-semibold text-xl">
+          <LayoutDashboard size={26} /> AI Mock Interview
+        </div>
+
+        <nav className="flex flex-col gap-3">
+          <Link
+            to="/dashboard"
+            className="nav-link group"
+          >
+            <LayoutDashboard className="mr-2" size={20} />
+            Dashboard
+          </Link>
+
+          <Link
+            to="/interview-setup"
+            className="nav-link group"
+          >
+            <PlayCircle className="mr-2" size={20} />
+            Start Interview
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="nav-link group text-red-300 hover:text-red-100 hover:ml-1"
+          >
+            <LogOut className="mr-2" size={20} />
+            Logout
+          </button>
+        </nav>
+      </aside>
+
+      {/* Main Dashboard */}
+      <main className="flex-1 p-10">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <p className="font-medium">{userData?.name || "User"}</p>
-            <p className="text-sm text-gray-500">{userData?.email || ""}</p>
+            <h1 className="text-4xl font-bold text-gray-800">
+              Welcome Back 👋
+            </h1>
+            <p className="text-gray-500">
+              Improve and track your interview performance
+            </p>
           </div>
+          <Link
+            to="/interview-setup"
+            className="btn-primary hover:shadow-xl transition-all"
+          >
+            <PlayCircle size={20} className="mr-2" />
+            New Interview
+          </Link>
         </div>
-        <button
-          onClick={handleLogout}
-          className="text-red-600 hover:text-red-800 px-4 py-2 rounded border border-red-200 hover:bg-red-50 transition-colors"
-        >
-          Logout
-        </button>
-      </div>
 
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Your Dashboard</h1>
-        <Link
-          to="/interview-setup"
-          className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          New Interview
-        </Link>
-      </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {successMessage}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Total Interviews</h2>
-          <p className="text-3xl font-bold text-primary">
-            {loading ? "..." : interviews.length}
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Average Score</h2>
-          <p className="text-3xl font-bold text-green-600">
-            {loading ? "..." : `${averageScore}%`}
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-2">Highest Score</h2>
-          <p className="text-3xl font-bold text-blue-600">
-            {loading ? "..." : `${highestScore}%`}
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold p-6 border-b">
-          Interview History
-        </h2>
-
-        {loading ? (
-          <div className="p-8 text-center text-gray-500">
-            Loading interview history...
-          </div>
-        ) : interviews.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            You haven't completed any interviews yet.
-            <Link
-              to="/interview-setup"
-              className="text-primary hover:underline ml-2"
+        {/* Glass Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[
+            {
+              title: "Completed Interviews",
+              value: interviews.length,
+              icon: <LineChart size={28} />,
+            },
+            {
+              title: "Average Score",
+              value:
+                interviews.length > 0
+                  ? `${Math.round(
+                      interviews.reduce((sum, x) => sum + x.score, 0) /
+                        interviews.length
+                    )}%`
+                  : "-",
+              icon: <UserCircle size={28} />,
+            },
+            {
+              title: "Highest Score",
+              value:
+                interviews.length > 0
+                  ? `${Math.max(...interviews.map((x) => x.score))}%`
+                  : "-",
+              icon: <LayoutDashboard size={28} />,
+            },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className="glass-card hover:scale-[1.02] transition-transform"
             >
-              Start your first interview
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-700">{card.title}</p>
+                <span className="text-blue-800">{card.icon}</span>
+              </div>
+              <h3 className="text-4xl font-semibold text-gray-900 mt-2">
+                {card.value}
+              </h3>
+            </div>
+          ))}
+        </div>
+
+        {/* Interview History */}
+        <div className="glass-table p-6 rounded-xl">
+          <h2 className="text-xl font-semibold mb-4">Interview History</h2>
+
+          {interviews.length === 0 ? (
+            <p className="text-gray-600">
+              No interviews yet —{" "}
+              <Link className="text-blue-600 underline" to="/interview-setup">
+                Start one now
+              </Link>
+            </p>
+          ) : (
             <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Position
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Score
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+              <thead>
+                <tr className="text-gray-500 uppercase text-xs">
+                  <th className="table-head">Date</th>
+                  <th className="table-head">Position</th>
+                  <th className="table-head">Score</th>
+                  <th className="table-head">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {interviews.map((interview) => (
-                  <tr key={interview._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {formatDate(interview.date)}
+              <tbody>
+                {interviews.map((i) => (
+                  <tr key={i._id} className="hover:bg-blue-50 transition">
+                    <td className="table-cell">
+                      {new Date(i.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {interview.domain}
+                    <td className="table-cell">{i.domain}</td>
+                    <td className="table-cell font-semibold text-blue-700">
+                      {i.score}%
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`font-medium ${
-                          interview.score >= 80
-                            ? "text-green-600"
-                            : interview.score >= 60
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {interview.score}%
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="table-cell">
                       <Link
-                        to={`/results/${interview._id}`}
-                        className="text-primary hover:text-blue-800"
+                        to={`/results/${i._id}`}
+                        className="text-blue-600 hover:underline"
                       >
                         View Details
                       </Link>
@@ -260,9 +194,9 @@ const Dashboard: React.FC = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
