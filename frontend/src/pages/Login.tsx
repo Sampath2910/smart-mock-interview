@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_URL || "";
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -10,16 +12,19 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        `${API_URL}/api/auth/login`,
+        { email, password }
+      );
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       navigate("/dashboard");
-    } catch {
-      setError("Invalid email or password");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Invalid email or password");
     }
   };
 
@@ -61,7 +66,7 @@ const Login: React.FC = () => {
             />
           </div>
 
-          <button className="btn-primary w-full mt-4 hover:shadow-xl transition-all">
+          <button className="btn-primary w-full mt-4">
             Login
           </button>
         </form>

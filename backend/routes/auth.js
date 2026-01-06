@@ -1,18 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
-// @route   POST /api/auth/register
-// @desc    Register a user
-// @access  Public
+// ================= REGISTER =================
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user exists
     let user = await User.findOne({ email });
-
     if (user) {
       return res.status(400).json({
         success: false,
@@ -20,19 +17,20 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Create user
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     user = await User.create({
       name,
       email,
-      password,
+      password: hashedPassword,
     });
 
-    // Create token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
-    });
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
 
-    // Don't send password
     user.password = undefined;
 
     res.status(201).json({
@@ -42,14 +40,6 @@ router.post("/register", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    if (err.name === "ValidationError") {
-      const messages = Object.values(err.errors).map((val) => val.message);
-      return res.status(400).json({
-        success: false,
-        message: messages.join(", "),
-      });
-    }
-
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -57,16 +47,12 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/login
-// @desc    Login a user
-// @access  Public
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
     const user = await User.findOne({ email }).select("+password");
-
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -74,9 +60,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Check if password matches
-    const isMatch = await user.matchPassword(password);
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -84,12 +68,12 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Create token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "30d",
-    });
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
 
-    // Don't send password
     user.password = undefined;
 
     res.status(200).json({
