@@ -1,125 +1,69 @@
-<!-- To run -->
-<!-- open new ternimal -->
 
-cd backend
-npm run dev
+---
 
-<!--Another New terminal -->
+# 2️⃣ Smart Mock Interview
 
-cd frontend
-npm strat
+```markdown
+<p align="center">
+<img src="https://img.shields.io/badge/TypeScript-Frontend-blue?style=flat-square&logo=typescript" />
+<img src="https://img.shields.io/badge/Node.js-Backend-green?style=flat-square&logo=node.js" />
+<img src="https://img.shields.io/badge/Deployment-Render-purple?style=flat-square&logo=render" />
+<img src="https://img.shields.io/github/license/Sampath2910/smart-mock-interview?style=flat-square" />
+</p>
 
-<<<<<<< HEAD
+# Smart Mock Interview
 
-# AI Interview Practice Platform
+Interactive web-based technical interview simulation platform.
 
-A full-stack web application that allows students to practice interviews using AI. The platform simulates real interview conditions by integrating video, voice, and AI analysis to provide a comprehensive evaluation of the student's performance.
+**Live Demo:**  
+https://smart-mock-interview-ir4w.onrender.com
 
-## Features
+---
 
-- **Authentication**: User signup and login functionality with secure session management
-- **Dashboard**: View past interviews and start new ones
-- **Interview Setup**: Choose domain and interview type
-- **Interview Interface**: Answer questions via voice with webcam recording
-- **AI Feedback**: Analysis of speech, grammar, facial expressions, and technical correctness
-- **Results Page**: Detailed feedback with charts and improvement suggestions
+## Overview
+
+A structured interview simulation application that allows users to practice technical questions through a web interface.
+
+---
+
+## System Architecture
+
+User Interface  
+→ Backend Logic  
+→ Question Engine  
+→ Response Handling  
+
+---
+
+## Technical Implementation
+
+- TypeScript-based frontend  
+- Structured question flow  
+- Backend routing and logic handling  
+- Cloud deployment via Render  
+
+---
 
 ## Tech Stack
 
-- **Frontend**: React.js with TypeScript and Tailwind CSS
-- **Backend**: Node.js and Express
-- **Database**: MongoDB
-- **Authentication**: JWT
-- **Voice Input**: Web Speech API
-- **Video Recording**: react-webcam
-- **Charts**: Chart.js with react-chartjs-2
+Frontend  
+- TypeScript  
+- HTML  
+- CSS  
 
-## Setup Instructions
+Backend  
+- Node.js  
+- Express  
 
-### Prerequisites
+Deployment  
+- Render  
 
-- Node.js (v14+)
-- MongoDB (local or Atlas)
+---
 
-### Backend Setup
+## Local Setup
 
-1. Navigate to the backend directory:
-
-   ```
-   cd backend
-   ```
-
-2. Install dependencies:
-
-   ```
-   npm install
-   ```
-
-3. Create a `.env` file based on the provided `.env.example` file:
-
-   ```
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
-   NODE_ENV=development
-   ```
-
-4. Start the server:
-   ```
-   npm run dev
-   ```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-
-   ```
-   cd frontend
-   ```
-
-2. Install dependencies:
-
-   ```
-   npm install
-   ```
-
-3. Start the development server:
-
-   ```
-   npm start
-   ```
-
-4. The application will be available at `http://localhost:3000`
-
-## Usage
-
-1. Register a new account or login with existing credentials
-2. From the dashboard, click "Start New Interview"
-3. Select domain and interview type
-4. Answer questions using your microphone
-5. Review your results and feedback
-
-## Sample Users
-
-For testing purposes, you can use these accounts:
-
-- Email: user@example.com
-- Password: password123
-
-## Note on AI Integration
-
-The current implementation uses mock AI services for demonstration purposes. In a production environment, you would integrate with:
-
-- Speech Recognition API (like Google's Speech-to-Text or OpenAI's Whisper)
-- Computer Vision API for facial expression analysis
-- NLP service for analyzing responses
-
-## License
-
-# MIT
-
-# Smart-Mock-Interview
-
-Smart Mock Interview is an AI-powered platform that helps users improve interview skills through realistic simulations. It uses video, voice, facial analysis, speech-to-text, and NLP feedback. Built with React.js, it offers personalized dashboards, domain-based questions, and detailed performance reports.
-
-> > > > > > > 53e3a81663e02aceae0e9822f50577114b447f59
+```bash
+git clone https://github.com/Sampath2910/smart-mock-interview.git
+cd smart-mock-interview
+npm install
+npm start
