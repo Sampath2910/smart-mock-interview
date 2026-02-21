@@ -3,7 +3,6 @@
 
 # 2️⃣ Smart Mock Interview
 
-```markdown
 <p align="center">
 <img src="https://img.shields.io/badge/TypeScript-Frontend-blue?style=flat-square&logo=typescript" />
 <img src="https://img.shields.io/badge/Node.js-Backend-green?style=flat-square&logo=node.js" />
@@ -62,7 +61,6 @@ Deployment
 
 ## Local Setup
 
-```bash
 git clone https://github.com/Sampath2910/smart-mock-interview.git
 cd smart-mock-interview
 npm install
