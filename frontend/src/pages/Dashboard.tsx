@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   LayoutDashboard,
   LogOut,
@@ -8,6 +7,7 @@ import {
   LineChart,
   UserCircle,
 } from "lucide-react";
+import api from "../utils/api";
 
 interface Interview {
   _id: string;
@@ -37,13 +37,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchInterviews = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await axios.get("http://localhost:5000/api/interviews", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setInterviews(response.data);
+      try {
+        const response = await api.get("/api/interviews");
+        setInterviews(response.data);
+      } catch (err) {
+        console.error(err);
+      }
     };
     fetchInterviews();
   }, []);
@@ -90,10 +89,15 @@ const Dashboard: React.FC = () => {
 
       {/* Main Dashboard */}
       <main className="flex-1 p-10">
+        {successMessage && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-sm">
+            {successMessage}
+          </div>
+        )}
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold text-gray-800">
-              Welcome Back 👋
+              Welcome Back{userData?.name ? `, ${userData.name}` : ""} 👋
             </h1>
             <p className="text-gray-500">
               Improve and track your interview performance

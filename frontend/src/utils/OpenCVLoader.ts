@@ -2,8 +2,6 @@
  * OpenCVLoader - Lightweight version that doesn't actually load OpenCV to avoid memory issues
  */
 
-// Track the loading state
-let isLoaded = true;
 
 /**
  * Fake OpenCV loader that just returns success

@@ -1,6 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Radar } from "react-chartjs-2";
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 interface InterviewData {
   _id: string;
@@ -10,6 +29,7 @@ interface InterviewData {
   score: number;
   questions: string[];
   responses: string[];
+  correctAnswers?: string[];
   performance: {
     confidence: number;
     communicationSkills: number;
@@ -40,14 +60,7 @@ const Results: React.FC = () => {
           throw new Error("Authentication required");
         }
 
-        const response = await axios.get(
-          `http://localhost:5000/api/interviews/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get(`/api/interviews/${id}`);
 
         setInterview(response.data);
       } catch (err: any) {
@@ -89,11 +102,7 @@ const Results: React.FC = () => {
         throw new Error("Authentication required");
       }
 
-      await axios.delete(`http://localhost:5000/api/interviews/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.delete(`/api/interviews/${id}`);
 
       // Redirect to dashboard after successful deletion
       navigate("/dashboard", {
@@ -166,53 +175,111 @@ const Results: React.FC = () => {
           <p>Date: {formatDate(interview.date)}</p>
         </div>
 
-        {interview.performance && (
-          <div className="mb-6">
-            <h3 className="font-semibold text-lg mb-2">Performance Metrics</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-sm text-gray-500">Confidence</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${interview.performance.confidence}%` }}
-                  ></div>
+        {interview.performance && (() => {
+          const radarData = {
+            labels: ["Confidence", "Communication Skills", "Relevance"],
+            datasets: [
+              {
+                label: "Score",
+                data: [
+                  interview.performance.confidence || 0,
+                  interview.performance.communicationSkills || 0,
+                  interview.performance.relevance || 0,
+                ],
+                backgroundColor: "rgba(30, 64, 175, 0.15)",
+                borderColor: "rgb(30, 64, 175)",
+                borderWidth: 2,
+                pointBackgroundColor: "rgb(30, 64, 175)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgb(30, 64, 175)",
+              },
+            ],
+          };
+
+          const radarOptions = {
+            scales: {
+              r: {
+                angleLines: {
+                  display: true,
+                },
+                suggestedMin: 0,
+                suggestedMax: 100,
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+          };
+
+          return (
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gray-50/50 p-6 rounded-xl border border-gray-100">
+              <div>
+                <h3 className="font-semibold text-lg mb-4 text-gray-800">
+                  Performance Metrics
+                </h3>
+                <div className="space-y-4">
+                  <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-semibold text-gray-700">Confidence</p>
+                      <p className="text-sm font-bold text-blue-600">
+                        {interview.performance.confidence}%
+                      </p>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 mt-2 overflow-hidden">
+                      <div
+                        className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                        style={{ width: `${interview.performance.confidence}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-semibold text-gray-700">
+                        Communication Skills
+                      </p>
+                      <p className="text-sm font-bold text-purple-600">
+                        {interview.performance.communicationSkills}%
+                      </p>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 mt-2 overflow-hidden">
+                      <div
+                        className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
+                        style={{
+                          width: `${interview.performance.communicationSkills}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm font-semibold text-gray-700">Relevance</p>
+                      <p className="text-sm font-bold text-yellow-600">
+                        {interview.performance.relevance}%
+                      </p>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 mt-2 overflow-hidden">
+                      <div
+                        className="bg-yellow-500 h-2.5 rounded-full transition-all duration-500"
+                        style={{ width: `${interview.performance.relevance}%` }}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-right text-sm mt-1">
-                  {interview.performance.confidence}%
-                </p>
               </div>
 
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-sm text-gray-500">Communication Skills</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                  <div
-                    className="bg-purple-600 h-2.5 rounded-full"
-                    style={{
-                      width: `${interview.performance.communicationSkills}%`,
-                    }}
-                  ></div>
+              <div className="flex justify-center items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm max-w-[280px] mx-auto w-full">
+                <div className="w-full aspect-square">
+                  <Radar data={radarData} options={radarOptions} />
                 </div>
-                <p className="text-right text-sm mt-1">
-                  {interview.performance.communicationSkills}%
-                </p>
-              </div>
-
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-sm text-gray-500">Relevance</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                  <div
-                    className="bg-yellow-600 h-2.5 rounded-full"
-                    style={{ width: `${interview.performance.relevance}%` }}
-                  ></div>
-                </div>
-                <p className="text-right text-sm mt-1">
-                  {interview.performance.relevance}%
-                </p>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="mb-6">
           <h3 className="font-semibold text-lg mb-2">Feedback</h3>
@@ -257,11 +324,24 @@ const Results: React.FC = () => {
                 <p className="font-medium mb-2">
                   Q{index + 1}: {question}
                 </p>
-                <div className="bg-gray-50 p-3 rounded">
+                <div className="bg-gray-50 p-3 rounded mb-2">
+                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase tracking-wide">
+                    Your Response
+                  </p>
                   <p className="text-gray-700">
                     {interview.responses[index] || "No response recorded"}
                   </p>
                 </div>
+                {interview.correctAnswers && interview.correctAnswers[index] && (
+                  <div className="bg-emerald-50/50 border border-emerald-100 p-3 rounded">
+                    <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-1">
+                      Optimal / Correct Answer
+                    </p>
+                    <p className="text-gray-800 text-sm">
+                      {interview.correctAnswers[index]}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

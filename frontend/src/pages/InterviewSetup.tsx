@@ -30,9 +30,17 @@ const InterviewSetup: React.FC = () => {
   };
 
   const addCustomSkill = () => {
-    if (customSkill && !skills.includes(customSkill)) {
-      setSkills([...skills, customSkill]);
+    const trimmedSkill = customSkill.trim();
+    if (trimmedSkill && !skills.includes(trimmedSkill)) {
+      setSkills([...skills, trimmedSkill]);
       setCustomSkill("");
+    }
+  };
+
+  const handleSkillKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addCustomSkill();
     }
   };
 
@@ -141,7 +149,8 @@ const InterviewSetup: React.FC = () => {
                 type="text"
                 value={customSkill}
                 onChange={(e) => setCustomSkill(e.target.value)}
-                placeholder="Add custom skill"
+                onKeyDown={handleSkillKeyDown}
+                placeholder="Add custom skill (press Enter)"
                 className="auth-input rounded-r-none"
               />
               <button

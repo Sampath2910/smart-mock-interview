@@ -72,6 +72,10 @@ const InterviewSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  correctAnswers: {
+    type: [String],
+    default: [],
+  },
   performance: {
     type: PerformanceSchema,
     default: () => ({}),

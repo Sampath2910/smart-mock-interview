@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const InterviewResults: React.FC = () => {
   const navigate = useNavigate();
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [error, setError] = useState("");
+  const [error] = useState("");
 
   // Mock interview results
   const mockResults = {
@@ -36,6 +35,8 @@ const InterviewResults: React.FC = () => {
           score: 92,
           feedback:
             "Provided a comprehensive explanation covering all key differences with practical examples.",
+          idealAnswer:
+            "useState triggers a component re-render when the state updates, which is ideal for values that affect the UI. useRef returns a mutable ref object whose .current property persists across renders without triggering a re-render, commonly used to reference DOM elements or persist temporary tracking values.",
         },
         {
           question:
@@ -43,6 +44,8 @@ const InterviewResults: React.FC = () => {
           score: 85,
           feedback:
             "Good understanding of virtualization and memoization, but could have mentioned windowing libraries.",
+          idealAnswer:
+            "Use list virtualization (windowing) with libraries like react-window or react-virtualized to only render elements in the viewport. Additionally, apply React.memo or useMemo to prevent unnecessary item re-renders, and ensure stable, unique key props are provided.",
         },
         {
           question:
@@ -50,6 +53,8 @@ const InterviewResults: React.FC = () => {
           score: 78,
           feedback:
             "Covered basic testing concepts but missed some important testing strategies for complex components.",
+          idealAnswer:
+            "Use Jest as the test runner and assertion library alongside React Testing Library to write behavior-driven tests that focus on how the user interacts with the component. Write unit tests for small utilities, integration tests for complex page flows, and use E2E tools like Cypress for critical user paths.",
         },
         {
           question:
@@ -57,6 +62,8 @@ const InterviewResults: React.FC = () => {
           score: 90,
           feedback:
             "Excellent understanding of form validation approaches and libraries.",
+          idealAnswer:
+            "Use form libraries like react-hook-form or Formik combined with a schema validation tool like Yup or Zod to manage states and errors cleanly. Alternatively, use controlled state inputs and validate constraints inside onChange or onSubmit handlers, mapping errors to localized component states.",
         },
       ],
     },
@@ -225,7 +232,15 @@ const InterviewResults: React.FC = () => {
                       {item.score}%
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600">{item.feedback}</p>
+                  <p className="text-xs text-gray-600 mb-2">{item.feedback}</p>
+                  <div className="bg-emerald-50/50 border border-emerald-100 rounded-lg p-3">
+                    <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wide mb-1">
+                      Optimal / Correct Answer
+                    </p>
+                    <p className="text-xs text-gray-700 leading-relaxed">
+                      {item.idealAnswer}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

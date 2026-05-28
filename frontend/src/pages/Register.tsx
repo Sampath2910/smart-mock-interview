@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL || "";
+import api from "../utils/api";
 
 const Register: React.FC = () => {
   const [name, setName] = useState("");
@@ -25,8 +23,8 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API_URL}/api/auth/register`,
+      const response = await api.post(
+        "/api/auth/register",
         { name, email, password }
       );
 

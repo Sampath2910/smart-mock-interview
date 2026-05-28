@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL || "";
+import api from "../utils/api";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -15,8 +13,8 @@ const Login: React.FC = () => {
     setError("");
 
     try {
-      const res = await axios.post(
-        `${API_URL}/api/auth/login`,
+      const res = await api.post(
+        "/api/auth/login",
         { email, password }
       );
 

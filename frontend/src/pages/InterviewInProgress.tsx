@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 import * as tf from "@tensorflow/tfjs";
@@ -55,7 +55,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
   const [error, setError] = useState("");
   const [facialExpression, setFacialExpression] = useState<string>("neutral");
   const [confidenceScore, setConfidenceScore] = useState(0);
-  const [faceDetectionSuccess, setFaceDetectionSuccess] = useState(0); // Track consecutive successful detections
   const [relevanceScore, setRelevanceScore] = useState(0);
   const [communicationScore, setCommunicationScore] = useState(0);
   const [confidenceHistory, setConfidenceHistory] = useState<number[]>([]);
@@ -67,7 +66,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
   const [cameraActive, setCameraActive] = useState(true);
   const [cameraError, setCameraError] = useState("");
   const [cameraInitialized, setCameraInitialized] = useState(false);
-  const [speechToText, setSpeechToText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isShuttingDown, setIsShuttingDown] = useState(false);
   const [expressionCounts, setExpressionCounts] = useState<
@@ -89,6 +87,7 @@ const InterviewInProgress: React.FunctionComponent = () => {
       question: string;
       expectedTopics: string[];
       keyPhrases: string[];
+      correctAnswer: string;
     }>
   >([]);
 
@@ -196,22 +195,16 @@ const InterviewInProgress: React.FunctionComponent = () => {
         speechRecognitionRef.current.onresult = (
           event: SpeechRecognitionEvent
         ) => {
-          let interimTranscript = "";
           let finalTranscript = "";
 
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
               finalTranscript += event.results[i][0].transcript;
-            } else {
-              interimTranscript += event.results[i][0].transcript;
             }
           }
 
           // Only update if there's new final transcript content
           if (finalTranscript) {
-            // Append to current speech-to-text content rather than replacing
-            setSpeechToText((prevText) => prevText + " " + finalTranscript);
-
             // Append to the textarea content rather than replacing
             setUserAnswer((prevAnswer) => {
               // Add a space if needed
@@ -345,14 +338,14 @@ const InterviewInProgress: React.FunctionComponent = () => {
         : 4;
 
       // Use either a public API or an AI service like OpenAI
-      const prompt = `Generate ${questionCount} technical interview questions for a ${experienceLevel}-level developer with the following skills: ${selectedSkills.join(
-        ", "
-      )}. 
-      For each question, provide:
-      1. The main question text
-      2. Key topics the candidate should cover in their answer
-      3. Key phrases that indicate the candidate understands the topic
-      Format as JSON.`;
+      // const prompt = `Generate ${questionCount} technical interview questions for a ${experienceLevel}-level developer with the following skills: ${selectedSkills.join(
+      //   ", "
+      // )}. 
+      // For each question, provide:
+      // 1. The main question text
+      // 2. Key topics the candidate should cover in their answer
+      // 3. Key phrases that indicate the candidate understands the topic
+      // Format as JSON.`;
 
       // Either use a real OpenAI API call (requires API key) or a mock for demo purposes
       // For real implementation:
@@ -404,6 +397,7 @@ const InterviewInProgress: React.FunctionComponent = () => {
         question: string;
         expectedTopics: string[];
         keyPhrases: string[];
+        correctAnswer: string;
       }>
     > = {
       React: [
@@ -423,6 +417,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "lifecycle",
             "dependencies",
           ],
+          correctAnswer:
+            "React hooks allow functional components to use state, lifecycle methods, and other React features without writing class components. They simplify state sharing, reduce code nesting (wrapper hell), and encourage component reuse through custom hooks.",
         },
         {
           question:
@@ -441,6 +437,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "performance",
             "batch",
           ],
+          correctAnswer:
+            "The Virtual DOM is an in-memory representation of the real DOM. When component state changes, React builds a new virtual tree, performs a diffing algorithm (reconciliation) against the previous tree, and batches only the necessary minimal updates to the real browser DOM, increasing performance.",
         },
         {
           question:
@@ -460,6 +458,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "effect",
             "cleanup",
           ],
+          correctAnswer:
+            "Class components use explicit lifecycle methods like componentDidMount, componentDidUpdate, and componentWillUnmount. Functional components replicate these phases using the useEffect hook, where the setup function handles mounting/updating and the returned cleanup function handles unmounting.",
         },
       ],
       JavaScript: [
@@ -480,6 +480,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "private",
             "encapsulation",
           ],
+          correctAnswer:
+            "A closure is the combination of a function bundled together with references to its surrounding state (the lexical environment). In other words, a closure gives an inner function access to the outer function's scope even after the outer function has returned.",
         },
         {
           question:
@@ -499,6 +501,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "reject",
             "chain",
           ],
+          correctAnswer:
+            "Promises are objects representing the eventual completion or failure of an asynchronous operation. They resolve callback hell by enabling promise chaining via .then() and .catch(), or through the async/await syntax, which makes asynchronous code read like synchronous code.",
         },
         {
           question:
@@ -518,6 +522,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "callback",
             "non-blocking",
           ],
+          correctAnswer:
+            "The event loop is a mechanism that allows JavaScript to perform non-blocking I/O operations despite being single-threaded. It constantly monitors the call stack and callback queue. When the call stack is empty, it pushes tasks from the callback/microtask queues to the stack to be executed.",
         },
       ],
       TypeScript: [
@@ -539,6 +545,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "generics",
             "autocomplete",
           ],
+          correctAnswer:
+            "TypeScript adds static typing to JavaScript, catching type mismatches at compile time rather than runtime. It provides rich IDE autocompletion, refactoring safety, and self-documenting code through interfaces, types, and generics.",
         },
         {
           question: "Explain TypeScript's generics with a practical example.",
@@ -556,6 +564,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "flexibility",
             "type parameter",
           ],
+          correctAnswer:
+            "Generics allow developers to create reusable components, functions, or interfaces that work with a variety of types rather than a single one. By using type parameters like <T>, you maintain type safety without resorting to the 'any' type.",
         },
       ],
       "Node.js": [
@@ -576,6 +586,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "concurrency",
             "single thread",
           ],
+          correctAnswer:
+            "Node.js uses a single-threaded event loop and non-blocking I/O. For heavy operations, it delegates work to a thread pool via the libuv library, freeing the event loop to receive new incoming requests. Once asynchronous background tasks complete, callbacks are queued to run on the main loop.",
         },
         {
           question: "What are streams in Node.js and why are they important?",
@@ -594,6 +606,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "memory",
             "buffer",
           ],
+          correctAnswer:
+            "Streams are collections of data that might not be available all at once or fit entirely in memory. They read or write data in chunks, preventing high memory overhead. You can pipe readable streams directly into writable streams (like reading a large file and writing it to an HTTP response).",
         },
       ],
     };
@@ -618,6 +632,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "experience",
           "application",
         ],
+        correctAnswer:
+          "A high-quality answer should follow the STAR method (Situation, Task, Action, Result). Explicitly mention a challenging feature you built using these skills, how you designed the architecture, the performance optimizations you applied, and the measurable business outcome of your project.",
       },
       {
         question: `What are the latest developments or trends in ${skills.join(
@@ -638,6 +654,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "future",
           "direction",
         ],
+        correctAnswer:
+          "To answer this successfully, discuss recent major versions or releases (e.g., React Server Components, Node.js Test Runner, ES2024 features). Explain why these trends improve developer experience, performance, or security, and how you have experimented with them.",
       },
       {
         question: `Describe a time when you had to debug a complex issue involving ${skills[0]}. What was your approach?`,
@@ -656,6 +674,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "solution",
           "approach",
         ],
+        correctAnswer:
+          "Explain a structured troubleshooting approach: reproducing the bug, verifying assumptions, isolating the module (using DevTools, breakpoints, logs, or network inspectors), diagnosing the root cause (like race conditions or memory leaks), and validating the fix with automated tests.",
       },
       {
         question: `How do you stay updated with the latest developments in ${skills.join(
@@ -676,6 +696,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "update",
           "study",
         ],
+        correctAnswer:
+          "Discuss a variety of sources: official documentation and RFCs, reputable tech blogs (e.g., Medium, dev.to), podcasts, newsletters (like Bytes or JS Weekly), active GitHub open-source repositories, and building sandbox pet projects to experiment with new APIs.",
       },
       {
         question: `What performance optimization techniques do you apply when working with ${skills.join(
@@ -696,6 +718,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "improve",
           "metrics",
         ],
+        correctAnswer:
+          "Highlight critical optimization techniques: bundle splitting and lazy loading, debouncing/throttling event listeners, caching API calls (using React Query or Service Workers), optimizing image assets, and utilizing performance profiling tabs in browser developer tools.",
       },
       {
         question: `How do you approach writing maintainable and scalable code when using ${skills.join(
@@ -716,6 +740,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
           "clean",
           "architecture",
         ],
+        correctAnswer:
+          "Focus on SOLID design principles, clean architecture (separating business logic from UI components), descriptive naming conventions, writing dry but readable code, thorough documentation (JSDoc, READMEs), and robust unit/integration testing coverage.",
       },
     ];
 
@@ -725,6 +751,7 @@ const InterviewInProgress: React.FunctionComponent = () => {
       question: string;
       expectedTopics: string[];
       keyPhrases: string[];
+      correctAnswer: string;
     }> = [];
 
     // Try to get at least one question for each selected skill
@@ -769,6 +796,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
             "result",
             "outcome",
           ],
+          correctAnswer:
+            "A comprehensive response should describe a specific technical challenge, the root cause analysis, why you chose a particular solution among trade-offs, how you implemented it, and the final positive impact on performance, code size, or business metrics.",
         });
       }
     }
@@ -808,6 +837,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "DOM",
         "update",
       ],
+      correctAnswer:
+        "useState triggers a component re-render when the state updates, which is ideal for values that affect the UI. useRef returns a mutable ref object whose .current property persists across renders without triggering a re-render, commonly used to reference DOM elements or persist temporary tracking values.",
     },
     {
       id: 2,
@@ -831,6 +862,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "list",
         "rendering",
       ],
+      correctAnswer:
+        "Use list virtualization (windowing) with libraries like react-window or react-virtualized to only render elements in the viewport. Additionally, apply React.memo or useMemo to prevent unnecessary item re-renders, and ensure stable, unique key props are provided.",
     },
     {
       id: 3,
@@ -854,6 +887,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "mock",
         "snapshot",
       ],
+      correctAnswer:
+        "Use Jest as the test runner and assertion library alongside React Testing Library to write behavior-driven tests that focus on how the user interacts with the component. Write unit tests for small utilities, integration tests for complex page flows, and use E2E tools like Cypress for critical user paths.",
     },
     {
       id: 4,
@@ -876,6 +911,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "validate",
         "schema",
       ],
+      correctAnswer:
+        "Use form libraries like react-hook-form or Formik combined with a schema validation tool like Yup or Zod to manage states and errors cleanly. Alternatively, use controlled state inputs and validate constraints inside onChange or onSubmit handlers, mapping errors to localized component states.",
     },
     {
       id: 5,
@@ -897,6 +934,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "prop drilling",
         "nesting",
       ],
+      correctAnswer:
+        "React Context is used to share global states (like theme or user auth) across deep component trees without prop drilling. For frequently updating states or complex workflows, use dedicated libraries like Redux Toolkit or Zustand, as Context triggers re-renders on all consumers when the context value object changes.",
     },
     {
       id: 6,
@@ -918,6 +957,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "performance",
         "side effect",
       ],
+      correctAnswer:
+        "useEffect is for executing side-effects (e.g. data fetching, event listeners) after rendering. useMemo memoizes a computed value to prevent heavy recalculations unless dependencies change. useCallback memoizes a callback function instance to prevent unnecessary children re-renders due to referential inequality.",
     },
     {
       id: 7,
@@ -942,6 +983,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "Next.js",
         "performance",
       ],
+      correctAnswer:
+        "Client-Side Rendering (CSR) serves a blank HTML file and constructs the UI in the browser using JS, which is fast for subsequent interactions but has slow initial load and poor SEO. Server-Side Rendering (SSR) pre-renders the HTML on the server for faster initial load and better SEO, then hydrates it with JS on the client.",
     },
     {
       id: 8,
@@ -965,6 +1008,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "reducers",
         "selectors",
       ],
+      correctAnswer:
+        "Use Redux Toolkit for complex, structured state pipelines with middleware and actions, or Zustand for a lightweight, simplified store model. For simpler apps with low-frequency updates, the built-in React Context API can suffice.",
     },
     {
       id: 9,
@@ -986,6 +1031,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "crash",
         "recovery",
       ],
+      correctAnswer:
+        "Implement a class component that defines getDerivedStateFromError to render a fallback UI when a crash occurs, and componentDidCatch to log error telemetry. Alternatively, use the react-error-boundary library which provides a clean functional wrapper for error boundary patterns.",
     },
     {
       id: 10,
@@ -1008,6 +1055,8 @@ const InterviewInProgress: React.FunctionComponent = () => {
         "events",
         "parent",
       ],
+      correctAnswer:
+        "React Portals allow rendering child components (like modals, tooltips, or dropdowns) into a separate DOM node outside the parent component's DOM hierarchy using ReactDOM.createPortal, while still preserving standard React event bubbling and context access.",
     },
   ];
 
@@ -1239,7 +1288,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
       // Check if face is detected
       if (faces && faces.length > 0) {
         // Face is present - update face detection success counter
-        setFaceDetectionSuccess((prev) => Math.min(prev + 1, 10));
 
         // Get the first detected face
         const firstFace = faces[0];
@@ -1337,12 +1385,22 @@ const InterviewInProgress: React.FunctionComponent = () => {
             expressionScore = 50;
         }
 
+        // Blend with OpenCV engagement score if available
+        let blendedScore = expressionScore;
+        if (openCVAnalyzer) {
+          const cvMetrics = openCVAnalyzer.analyzeFrame(video);
+          if (cvMetrics) {
+            // Blend: 60% facial expression score, 40% OpenCV calculated engagement
+            blendedScore = Math.round(expressionScore * 0.6 + cvMetrics.engagementScore * 0.4);
+          }
+        }
+
         // Apply smoothing to avoid jumpy values (70% new, 30% previous)
         // Only apply smoothing if we had a previous non-zero score
         const newScore =
           confidenceScore > 0
-            ? Math.round(0.7 * expressionScore + 0.3 * confidenceScore)
-            : expressionScore;
+            ? Math.round(0.7 * blendedScore + 0.3 * confidenceScore)
+            : blendedScore;
 
         // Ensure score stays within valid range
         const boundedScore = Math.max(10, Math.min(100, newScore));
@@ -1357,7 +1415,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
         }
 
         // Reset face detection counter
-        setFaceDetectionSuccess((prev) => Math.max(0, prev - 1));
 
         // Update facial expression to "unknown" when no face detected
         if (facialExpression !== "unknown") {
@@ -1368,7 +1425,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
       console.error("Error in face detection:", error);
 
       // Reset face detection counter on error
-      setFaceDetectionSuccess((prev) => Math.max(0, prev - 1));
 
       // Set confidence to 0 on error as no valid face could be detected
       if (confidenceScore !== 0) {
@@ -1578,6 +1634,7 @@ const InterviewInProgress: React.FunctionComponent = () => {
                 ...answers,
                 ...Array(questions.length - answers.length).fill(""),
               ],
+        correctAnswers: questions.map((q) => q.correctAnswer),
         endTime: new Date().toISOString(),
         // Additional metrics for detailed analysis (not displayed in Results)
         metrics: {
@@ -1604,13 +1661,10 @@ const InterviewInProgress: React.FunctionComponent = () => {
 
       try {
         // Send the interview data to the backend
-        const response = await axios.post(
-          "http://localhost:5000/api/interviews",
+        const response = await api.post(
+          "/api/interviews",
           interviewData,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
             signal: controller.signal,
           }
         );
@@ -1656,7 +1710,6 @@ const InterviewInProgress: React.FunctionComponent = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
       setUserAnswer("");
-      setSpeechToText("");
       setIsThinking(false);
     } else {
       endInterview();
@@ -1756,16 +1809,7 @@ const InterviewInProgress: React.FunctionComponent = () => {
     return "bg-red-500";
   };
 
-  // Calculate average for any metric including current value
-  const calculateRunningAverage = (
-    history: number[],
-    currentValue: number
-  ): number => {
-    if (history.length === 0) return currentValue;
-    const sum =
-      history.reduce((total, value) => total + value, 0) + currentValue;
-    return Math.round(sum / (history.length + 1));
-  };
+
 
   // Evaluate grammar and communication skills
   const evaluateCommunication = (text: string): number => {

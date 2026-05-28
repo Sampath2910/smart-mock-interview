@@ -7,7 +7,6 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import InterviewSetup from "./pages/InterviewSetup";
-import Interview from "./pages/Interview";
 import Results from "./pages/Results";
 import InterviewInProgress from "./pages/InterviewInProgress";
 import InterviewResults from "./pages/InterviewResults";
@@ -35,14 +34,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <InterviewSetup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/interview"
-            element={
-              <ProtectedRoute>
-                <Interview />
               </ProtectedRoute>
             }
           />
